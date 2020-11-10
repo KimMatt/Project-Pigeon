@@ -1,7 +1,6 @@
 import usb.core
 import usb.util
 import sys
-import numpy as np
 
 device = usb.core.find(idVendor=0x1d6b, idProduct=0x0002)
 
@@ -17,19 +16,14 @@ if device.is_kernel_driver_active(0):
 
 device.set_configuration()
 
-print(device.bLength)
-print(device.bNumConfigurations)
-print(device.bDeviceClass)
+ep = device[0][(0,0)][0]
 
-cfg = device[0]
-intf = cfg[(0,0)]
-ep = intf[0]
 assert ep is not None
 
 while True:
-    if np.random.rand() > 0.5:
-        ep.write('0',1000)
-    else:
-        ep.write('1',1000)
-
-
+    try:
+        data = ep.read(ep.wMaxPacketSize, 10000)
+        print(data)
+    except usb.core.USBError as e:
+        if e.args == ('Operation timed out',):
+            continue
