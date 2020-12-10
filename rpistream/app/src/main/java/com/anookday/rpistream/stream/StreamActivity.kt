@@ -24,52 +24,59 @@ import kotlinx.coroutines.launch
 class StreamActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStreamBinding
     private lateinit var navController: NavController
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: StreamViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_stream)
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
+
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
         navController = navHostFragment.navController
 
         setSupportActionBar(binding.appBar as Toolbar)
-        supportActionBar?.let {
-            it.setHomeAsUpIndicator(R.drawable.ic_baseline_account_circle_24)
-            it.setDisplayHomeAsUpEnabled(true)
-        }
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        binding.accDrawer.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.nav_settings -> {
-
-                    true
-                }
-                R.id.nav_logout -> {
-                    lifecycleScope.launch {
-                        viewModel.logout()
+        binding.apply {
+            lifecycleOwner = this@StreamActivity
+            accDrawer.setNavigationItemSelectedListener {
+                when (it.itemId) {
+                    R.id.nav_account -> {
+                        appContainer.closeDrawers()
+                        navController.navigate(R.id.action_streamFragment_to_accountFragment)
+                        true
                     }
-                    true
+                    R.id.nav_settings -> {
+                        appContainer.closeDrawers()
+                        navController.navigate(R.id.action_streamFragment_to_settingsFragment)
+                        true
+                    }
+                    R.id.nav_logout -> {
+                        lifecycleScope.launch {
+                            viewModel.logout()
+                        }
+                        true
+                    }
+                    else -> false
                 }
-                else -> false
             }
         }
 
-        viewModel.user.observe(this, Observer { user ->
-            if (user != null) {
-                user_id.text = user.profile.displayName
-                Glide.with(this).load(user.profile.profileImage).into(user_icon)
-                navController.navigate(R.id.streamFragment)
-            } else {
-                val loginIntent = Intent(this, LandingActivity::class.java)
-                loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                startActivity(loginIntent)
-                finish()
-            }
-        })
+        viewModel.apply {
+            user.observe(this@StreamActivity, Observer { user ->
+                if (user != null) {
+                    user_id.text = user.profile.displayName
+                    user_description.text = user.profile.description
+                    Glide.with(this@StreamActivity).load(user.profile.profileImage).into(user_icon)
+                } else {
+                    val loginIntent = Intent(this@StreamActivity, LandingActivity::class.java)
+                    loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    startActivity(loginIntent)
+                    finish()
+                }
+            })
+        }
 
     }
 
@@ -86,15 +93,20 @@ class StreamActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> binding.appContainer.openDrawer(GravityCompat.START)
+            android.R.id.home -> {
+                when (viewModel.currentFragment.value) {
+                    CurrentFragmentName.STREAM -> binding.appContainer.openDrawer(GravityCompat.START)
+                    else -> onBackPressed()
+                }
+            }
         }
-        return true
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onBackPressed() {
-        when (viewModel.currentFragment.value) {
-            CurrentFragmentName.LOGIN -> exitApp()
-            CurrentFragmentName.STREAM -> {
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)
+        when (currentFragment!!::class) {
+            StreamFragment::class -> {
                 val streamWarning =
                     if (viewModel.connectStatus.value == RtmpConnectStatus.SUCCESS) " Your current stream will end." else ""
                 AlertDialog.Builder(this, R.style.AlertDialogStyle)
@@ -106,6 +118,19 @@ class StreamActivity : AppCompatActivity() {
             }
             else -> super.onBackPressed()
         }
+//        when (viewModel.currentFragment.value) {
+//            CurrentFragmentName.STREAM -> {
+//                val streamWarning =
+//                    if (viewModel.connectStatus.value == RtmpConnectStatus.SUCCESS) " Your current stream will end." else ""
+//                AlertDialog.Builder(this, R.style.AlertDialogStyle)
+//                    .setMessage("Are you sure you want to exit?$streamWarning")
+//                    .setCancelable(false)
+//                    .setPositiveButton("Yes") { _, _ -> exitApp() }
+//                    .setNegativeButton("No", null)
+//                    .show()
+//            }
+//            else -> super.onBackPressed()
+//        }
     }
 
     private fun exitApp() {
@@ -113,13 +138,14 @@ class StreamActivity : AppCompatActivity() {
         finish()
     }
 
-    fun enableHeaderAndDrawer() {
-        supportActionBar?.show()
-        binding.appContainer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-    }
-
-    fun disableHeaderAndDrawer() {
-        supportActionBar?.hide()
-        binding.appContainer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+    fun editNavigationDrawer(title: String, enableDrawer: Boolean) {
+        supportActionBar?.title = title
+        val drawerLockMode =
+            if (enableDrawer) {
+                DrawerLayout.LOCK_MODE_UNLOCKED
+            } else {
+                DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+            }
+        binding.appContainer.setDrawerLockMode(drawerLockMode)
     }
 }
