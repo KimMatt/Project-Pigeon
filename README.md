@@ -22,30 +22,49 @@ Stream footage from Twitch exported to YouTube:
 ## Raspberry Pi Setup
 
 ### 1. Enabling OTG
-We need to edit some files on Raspberry Pi's boot disk. Add the following line at the bottom of /boot/config.txt:
+We need to edit some files on Raspberry Pi's boot disk. Navigate to your Raspberry Pi image (eg. `/Volumes/boot` on Mac). Add the following line at the bottom of `config.txt`:
 ```
 dtoverlay=dwc2
 ```
-Add the following at the end of the line of /boot/cmdline.txt:
+In `cmdline.txt`, add the following after the word `rootwait`:
 ```
 modules-load=dwc2,libcomposite
 ```
-If you own a Raspberry Pi Zero W and would like to debug over a WiFi connection, run the following command in the /boot directory:
+To enable ssh over wifi, create a file called `ssh` in the `boot` image by running the command:
 ```
 touch ssh
 ```
+Create a file called `wpa_supplicant.conf` with the following contents, replacing `COUNTRY_CODE`, `WIFI_NAME` and `WIFI_PASSWORD` with their respective contents:
+```
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+country=COUNTRY_CODE
 
-### 2. Enable Camera
+network={
+     ssid="WIFI_NAME"
+     psk="WIFI_PASSWORD"
+     key_mgmt=WPA-PSK
+}
+```
+
+### 2. SSH into Raspberry Pi
+Connect your Raspberry Pi Zero to your phone via the <b>USB</b> (NOT PWR) port on the Pi. The first boot may take a few minutes. Once your Pi is fully booted, you can SSH into your Pi over wifi. Find your Pi's ip address and execute the following, replacing `IP_ADDRESS` with that of the Pi:
+```
+ssh-keygen -R IP_ADDRESS
+ssh pi@IP_ADDRESS
+```
+
+### 3. Enable Camera
 Connect your camera module to the Raspberry Pi if you already haven't done so. Then, you can find the menu to enable the camera by running the command:
 ```
 sudo raspi-config
 ```
 
-### 3. Configure Pi as a UVC Gadget
+### 4. Configure Pi as a UVC Gadget
 Check out a forked version of uvc-gadget:
 ```
 cd /home/pi
-git clone https://github.com/climberhunt/uvc-gadget.git
+git clone https://github.com/peterbay/uvc-gadget
 ```
 This repository provides a script that creates a systemd service. To install this, copy the file to the specified location and enable it.
 ```
@@ -59,8 +78,8 @@ make
 ```
 Enable serial connection (for app-to-pi communication):
 ```
-sudo ln -s /lib/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@ttyGS0.service
-sudo systemctl enable getty@ttyGS0.service
+sudo systemctl stop getty@ttyGS0.service
+sudo systemctl disable getty@ttyGS0.service
 ```
 Restart your Raspberry Pi. Upon next boot, your Raspberry Pi should be set up as a USB camera gadget.
 
@@ -73,6 +92,8 @@ http://www.davidhunt.ie/raspberry-pi-zero-with-pi-camera-as-usb-webcam/
 ### 1. Download NDK
 This app has been tested with NDK version 14 which you cannot donwload directly from Android Studio. Google provides download mirrors for older versions of NDK (<16) in the following link: 
 https://developer.android.com/ndk/downloads/older_releases
+
+Some modifications need to be made in the downloaded ndk. From the root directory of the NDK, change the file name of `prebuilt/YOUR_CHIP_ARCHITECTURE/bin/awk.exe` to `awk_.exe`, replacing `YOUR_CHIP_ARCHITECTURE` with your local machine's CPU architecture (eg. darwin_x86, armv6, etc.).
 
 ### 2. Compile in Android Studio
 Clone this repository to your desired location and open the "rpistream" directory in Android Studio. Then, add the following line at the botoom of file "local.properties":
