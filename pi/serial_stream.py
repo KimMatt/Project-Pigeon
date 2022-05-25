@@ -25,7 +25,7 @@ window.attributes('-fullscreen', True)
 
 message = StringVar()
 label = Label(window, textvariable=message, font='Helvetica 64', wraplength=window.winfo_width())
-label.place(relx=.5, rely=.5, anchor='left')
+label.place(relx=.5, rely=.5, anchor='w')
 
 window.after(2000, readSerial)
 window.mainloop()
