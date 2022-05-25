@@ -21,7 +21,7 @@ window.title('Project Pigeon')
 window.attributes('-fullscreen', True)
 
 message = StringVar()
-label = Label(window, textvariable=message, font='Helvetica 32')
+label = Label(window, textvariable=message, font='Helvetica 32', wraplength=window.winfo_width())
 label.place(relx=.5, rely=.5, anchor='center')
 
 window.after(2000, readSerial)
