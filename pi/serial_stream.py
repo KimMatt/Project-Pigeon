@@ -16,6 +16,7 @@ def readSerial():
                 time.sleep(1)
         except (FileNotFoundError, serial.SerialException):
             print('Serial port not found.')
+            time.sleep(1)
             pass
 
 window = Tk()
@@ -23,8 +24,8 @@ window.title('Project Pigeon')
 window.attributes('-fullscreen', True)
 
 message = StringVar()
-label = Label(window, textvariable=message, font='Helvetica 32', wraplength=window.winfo_width())
-label.place(relx=.5, rely=.5, anchor='center')
+label = Label(window, textvariable=message, font='Helvetica 64', wraplength=window.winfo_width())
+label.place(relx=.5, rely=.5, anchor='left')
 
 window.after(2000, readSerial)
 window.mainloop()
