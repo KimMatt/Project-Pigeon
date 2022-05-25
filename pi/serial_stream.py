@@ -13,7 +13,6 @@ def readSerial():
                 if len(output) > 0:
                     message.set(output)
                     window.update()
-                time.sleep(1)
         except (FileNotFoundError, serial.SerialException):
             print('Serial port not found.')
             time.sleep(1)
