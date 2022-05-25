@@ -22,9 +22,11 @@ def readSerial():
 window = Tk()
 window.title('Project Pigeon')
 window.attributes('-fullscreen', True)
+window.configure(background='black')
+window.config(cursor='none')
 
 message = StringVar()
-label = Label(window, textvariable=message, font='Helvetica 64', wraplength=700)
+label = Label(window, textvariable=message, font='Helvetica 64', wraplength=700, fg='#fff')
 label.place(relx=0, rely=.5, anchor='w')
 
 window.after(2000, readSerial)
