@@ -20,10 +20,10 @@ def parseCommand(window: Tk, textInput: StringVar, command: str):
 	if len(command) < COMM_LENGTH:
 		return
 	comm = command[:COMM_LENGTH -1]
-	return {
-		'CHAT': updateGUI(window, textInput, command[COMM_LENGTH + 1:]),
-		'EXPO': toggleAutoExposure(command[COMM_LENGTH + 1:])
-	}[comm]
+	if comm == 'CHAT':
+		updateGUI(window, textInput, command[COMM_LENGTH + 1:]),
+	elif comm == 'EXPO':
+		toggleAutoExposure(command[COMM_LENGTH + 1:])
 
 def readSerial():
     while True:            
