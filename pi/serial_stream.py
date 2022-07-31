@@ -25,7 +25,7 @@ def parseCommand(window: Tk, textInput: StringVar, command: str):
 		'EXPO': toggleAutoExposure(command[COMM_LENGTH + 1:])
 	}[comm]
 
-def readSerial(window: Tk, textInput: StringVar):
+def readSerial():
     while True:            
         try:
             ser = serial.Serial('/dev/ttyGS0', 115200, 8, 'N', 1, timeout=1)
