@@ -6,27 +6,28 @@ from tkinter import Tk, StringVar, Label
 COMM_LENGTH = 4
 
 def updateGUI(window: Tk, textInput: StringVar, message: str):
-	textInput.set(message)
-	window.update()
+    textInput.set(message)
+    window.update()
 
 def toggleAutoExposure(toggle: str):
-	controls = { '0', '1' }
-	if toggle in controls:
-		os.system(f'/usr/bin/v4l2-ctl -c auto_exposure={toggle}')
-	else:
-		print(f'Error: Invalid command. Expected {", ".join(controls)} but got {toggle}.')
+    controls = { '0', '1' }
+    if toggle in controls:
+        os.system(f'/usr/bin/v4l2-ctl -c auto_exposure={toggle}')
+    else:
+        print(f'Error: Invalid command. Expected {", ".join(controls)} but got {toggle}.')
 
 def parseCommand(window: Tk, textInput: StringVar, command: str):
-	if len(command) < COMM_LENGTH:
-		return
-	comm = command[:COMM_LENGTH -1]
-	if comm == 'CHAT':
-		updateGUI(window, textInput, command[COMM_LENGTH + 1:]),
-	elif comm == 'EXPO':
-		toggleAutoExposure(command[COMM_LENGTH + 1:])
+    if len(command) < COMM_LENGTH:
+        return
+    comm_type = command[:COMM_LENGTH]
+    comm_content = command[COMM_LENGTH + 1:]
+    if comm_type == 'CHAT':
+        updateGUI(window, textInput, comm_content),
+    elif comm_type == 'EXPO':
+        toggleAutoExposure(comm_content)
 
 def readSerial():
-    while True:            
+    while True:
         try:
             ser = serial.Serial('/dev/ttyGS0', 115200, 8, 'N', 1, timeout=1)
             output = ''
@@ -53,4 +54,3 @@ label.place(relx=0, rely=.5, anchor='w')
 
 window.after(2000, readSerial)
 window.mainloop()
-
