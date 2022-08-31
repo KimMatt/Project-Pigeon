@@ -8,19 +8,24 @@ COMM_LENGTH = 4
 
 
 def updateGUI(window: Tk, textInput: StringVar, message: str):
-	logging.debug(f'updating GUI -> {message}')
-	textInput.set(message)
-	window.update()
+    logging.debug(f'updating GUI -> {message}')
+    textInput.set(message)
+    window.update()
 
 
 def toggleAutoExposure(toggle: str):
-	logging.debug(f'toggling auto exposure -> {toggle}')
-	controls = {'0', '1'}
-	if toggle in controls:
-		os.system(f'/usr/bin/v4l2-ctl -c auto_exposure={toggle}')
-	else:
-		print(
-			f'Error: Invalid command. Expected {", ".join(controls)} but got {toggle}.')
+    logging.debug(f'toggling auto exposure -> {toggle}')
+    controls = {'0', '1'}
+    if toggle in controls:
+        os.system(f'/usr/bin/v4l2-ctl -c auto_exposure={toggle}')
+    else:
+        print(
+            f'Error: Invalid command. Expected {", ".join(controls)} but got {toggle}.')
+
+
+def setExposure(time: str):
+    logging.debug(f'setting absolute exposure -> {time}')
+    os.system(f'/usr/bin/v4l2-ctl -c exposure_time_absolute={time}')
 
 
 def parseCommand(window: Tk, textInput: StringVar, command: str):
@@ -33,6 +38,8 @@ def parseCommand(window: Tk, textInput: StringVar, command: str):
         updateGUI(window, textInput, comm_content),
     elif comm_type == 'EXPO':
         toggleAutoExposure(comm_content)
+    elif comm_type == 'EXTM':
+        setExposure(comm_content)
 
 
 def readSerial(window: Tk, textInput: StringVar):
