@@ -61,7 +61,7 @@ def main():
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
-            logging.FileHandler(f'logs/{time.strftime("%Y-%m-%d")}.log', mode='a', encoding=None, delay=False),
+            logging.FileHandler(f'Project-Pigeon/pi/logs/{time.strftime("%Y-%m-%d")}.log', mode='a', encoding=None, delay=False),
             logging.StreamHandler()])
 
     window = Tk()
