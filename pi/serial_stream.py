@@ -31,7 +31,7 @@ def setExposure(time: str):
 
 
 def parseCommand(window: Tk, textInput: StringVar, command: str):
-	logging.debug(f'parsing command -> {command[:-1]}')
+    logging.debug(f'parsing command -> {command[:-1]}')
     if len(command) < COMM_LENGTH:
         return
     comm_type = command[:COMM_LENGTH]
