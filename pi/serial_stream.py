@@ -4,7 +4,9 @@ import os
 import logging
 from tkinter import Tk, StringVar, Label
 
+
 COMM_LENGTH = 4
+LOG_FILE = f'Project-Pigeon/pi/logs/{time.strftime("%Y-%m-%d")}.log'
 
 
 def updateGUI(window: Tk, textInput: StringVar, message: str):
@@ -53,6 +55,8 @@ def readSerial(window: Tk, textInput: StringVar):
                 parseCommand(window, textInput, output)
     except (FileNotFoundError, serial.SerialException):
         logging.error('Serial port not found.')
+        window.destroy()
+        os.system(f'nano {LOG_FILE}')
 
 
 def main():
@@ -61,7 +65,7 @@ def main():
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
-            logging.FileHandler(f'Project-Pigeon/pi/logs/{time.strftime("%Y-%m-%d")}.log', mode='a', encoding=None, delay=False),
+            logging.FileHandler(LOG_FILE, mode='a', encoding=None, delay=False),
             logging.StreamHandler()])
 
     window = Tk()
