@@ -31,11 +31,11 @@ def setExposure(time: str):
 
 
 def parseCommand(window: Tk, textInput: StringVar, command: str):
-    logging.debug(f'parsing command -> {command}')
+	logging.debug(f'parsing command -> {command[:-1]}')
     if len(command) < COMM_LENGTH:
         return
     comm_type = command[:COMM_LENGTH]
-    comm_content = command[COMM_LENGTH + 1:]
+    comm_content = command[COMM_LENGTH + 1:-1]
     if comm_type == 'CHAT':
         updateGUI(window, textInput, comm_content),
     elif comm_type == 'EXPO':
@@ -60,9 +60,8 @@ def readSerial(window: Tk, textInput: StringVar):
 
 
 def main():
-    logging.root.handlers = []
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
             logging.FileHandler(LOG_FILE, mode='a', encoding=None, delay=False),
