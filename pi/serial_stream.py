@@ -79,7 +79,8 @@ def main():
         textvariable=textInput,
         font='Helvetica 64',
         wraplength=700,
-        fg='#fff')
+        bg='white',
+        fg='black')
     label.place(relx=0, rely=.5, anchor='w')
 
     window.after(2000, readSerial, window, textInput)
